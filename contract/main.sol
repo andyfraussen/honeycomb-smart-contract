@@ -4,63 +4,43 @@ import "https://github.com/smartcontractkit/chainlink/evm/contracts/ChainlinkCli
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/vendor/Ownable.sol";
 
 contract SunnyRental is ChainlinkClient, Ownable {
-  uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //payment is 0.100 but sol cannot work with decimals.
+    uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //payment is 0.100 but sol cannot work with decimals.
+    uint256 public currentPrice;
+    int256 public changeDay;
+    bytes32 public lastMarket;
+    address honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
+    string honeycombWWOPastWeatherJobIdBytes32 = "dfd869c5bdc04724a4b334d4413d588b";
+    string honeycombWWOPastWeatherJobIdInt256 = "67c9353f7cc94102b750f84f32027217";
+    string honeycombWWOPastWeatherJobIdBool = "c7aa4fbc602a4962aec762fe3a9d36f4";
 
-  uint256 public currentPrice;
-  int256 public changeDay;
-  bytes32 public lastMarket;
-  address honeyCombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
-
-  event RequestEthereumPriceFulfilled(
-    bytes32 indexed requestId,
-    uint256 indexed price
-  );
+    event RequestWWODataFulfilled(
+        bytes32 indexed requestId,
+        bytes32 indexed data
+        );
+        
+    constructor() public Ownable() {
+        setPublicChainlinkToken();
+        setChainlinkOracle(honeycombWWOOracle);
+    }
+    
+    function updateWeather() public {
+        //call HC API for yesterday's precipitation
+        //https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
+        //Params: isDayTime 
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32("4244dffd103a4d81aed90458ee6221f8"), this, this.fulfillWorldWeatherOnlineRequest.selector);
+        req.add("get", "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD");
+        sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
+  }
+  /*
+  callback function for WWO data.
+  */
+  function fulfillWorldWeatherOnlineRequest(bytes32 _requestId, bytes32 _data) public recordChainlinkFulfillment(_requestId){
+    emit RequestWWODataFulfilled(_requestId, _data);
+  }
   
 /*
-   _____               
-  / ____|              
- | |     ___  _ __ ___ 
- | |    / _ \| '__/ _ \
- | |___| (_) | | |  __/
-  \_____\___/|_|  \___|
-*/
-
-  constructor() public Ownable() {
-    setPublicChainlinkToken();
-    setChainlinkOracle(honeyCombWWOOracle);
-  }
-  
-  function updateWeather() public {
-      //call HC API for 
-  }
-  function runTest() public {
-      Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32("4244dffd103a4d81aed90458ee6221f8"), this, this.fulfillEthereumPrice.selector);
-    req.add("get", "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD");
-    req.add("path", "USD");
-    req.addInt("times", 100);
-    sendChainlinkRequestTo(0x9f37f5f695cc16bebb1b227502809ad0fb117e08, req, ORACLE_PAYMENT);
-  }
-  
-
-  function fulfillEthereumPrice(bytes32 _requestId, uint256 _price)
-    public
-    recordChainlinkFulfillment(_requestId)
-  {
-    emit RequestEthereumPriceFulfilled(_requestId, _price);
-    currentPrice = _price;
-  }
-  
-  
-/*
-  _      _____ _   _ _  __   ____                       _   _                 
- | |    |_   _| \ | | |/ /  / __ \                     | | (_)                
- | |      | | |  \| | ' /  | |  | |_ __   ___ _ __ __ _| |_ _  ___  _ __  ___ 
- | |      | | | . ` |  <   | |  | | '_ \ / _ \ '__/ _` | __| |/ _ \| '_ \/ __|
- | |____ _| |_| |\  | . \  | |__| | |_) |  __/ | | (_| | |_| | (_) | | | \__ \
- |______|_____|_| \_|_|\_\  \____/| .__/ \___|_|  \__,_|\__|_|\___/|_| |_|___/
-                                  | |                                         
-                                  |_|                                         
-*/
+    LINK operations
+ */
  
   function getChainlinkToken() public view returns (address) {
     return chainlinkTokenAddress();
@@ -71,15 +51,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
     require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
   }
   
-  /*
-   _    _      _                    __                  _   _                 
- | |  | |    | |                  / _|                | | (_)                
- | |__| | ___| |_ __   ___ _ __  | |_ _   _ _ __   ___| |_ _  ___  _ __  ___ 
- |  __  |/ _ \ | '_ \ / _ \ '__| |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
- | |  | |  __/ | |_) |  __/ |    | | | |_| | | | | (__| |_| | (_) | | | \__ \
- |_|  |_|\___|_| .__/ \___|_|    |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
-               | |                                                           
-               |_|                                                           
+/*
+    Helper functions
 */
 
   function stringToBytes32(string memory source) private pure returns (bytes32 result) {
