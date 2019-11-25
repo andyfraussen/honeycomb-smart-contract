@@ -28,6 +28,10 @@ contract SunnyRental is ChainlinkClient, Ownable {
         
         //TODO
         
+        //for each day we don't have an avg windspeed for that's within the rental contract timespan, request it.
+        
+        //TODO loop
+        
         //call HC API for yesterday's daily average precipitation  - docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(honeycombWWOPastWeatherInt256JobId), this, this.fulfillWorldWeatherOnlineRequest.selector);
         req.add("q","Brussels");
