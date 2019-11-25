@@ -3,39 +3,49 @@ pragma solidity 0.4.24;
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/ChainlinkClient.sol";
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/vendor/Ownable.sol";
 
-contract SunnyRental is ChainlinkClient, Ownable {
-    uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //payment is 0.100 but sol cannot work with decimals.
-    uint256 public currentPrice;
-    int256 public changeDay;
-    bytes32 public lastMarket;
-    address honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
-    string honeycombWWOPastWeatherJobIdBytes32 = "dfd869c5bdc04724a4b334d4413d588b";
-    string honeycombWWOPastWeatherJobIdInt256 = "67c9353f7cc94102b750f84f32027217";
-    string honeycombWWOPastWeatherJobIdBool = "c7aa4fbc602a4962aec762fe3a9d36f4";
 
-    event RequestWWODataFulfilled(
-        bytes32 indexed requestId,
-        bytes32 indexed data
-        );
+contract SunnyRental is ChainlinkClient, Ownable {
+    
+    //public readable vars
+    int256 public avgtempF;
+    
+    //private vars
+    uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //payment is 0.100 but sol cannot work with decimals.
+    address private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
+    string private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
+
+
+    //event definitions
+    event RequestWWODataFulfilled(bytes32 indexed requestId,int256 indexed data);
         
     constructor() public Ownable() {
         setPublicChainlinkToken();
         setChainlinkOracle(honeycombWWOOracle);
     }
-    
-    function updateWeather() public {
-        //call HC API for yesterday's precipitation
-        //https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
-        //Params: isDayTime 
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32("4244dffd103a4d81aed90458ee6221f8"), this, this.fulfillWorldWeatherOnlineRequest.selector);
-        req.add("get", "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD");
+    /* Public function to trigger fulfillment */
+    function updateWeather(string rentalContractId) public {
+        //get the requirements for the contract : location & min windspeed
+        
+        //TODO
+        
+        //call HC API for yesterday's daily average precipitation  - docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
+        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(honeycombWWOPastWeatherInt256JobId), this, this.fulfillWorldWeatherOnlineRequest.selector);
+        req.add("q","Brussels");
+        req.add("date","2019-11-24");
+        req.add("tp","24");
+        //start with avg temp. later: windspeed for surfing
+        req.add("copyPath", "data.weather.0.avgtempF");
         sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
+        
+        //store that this CL request was made for the rentalContractId so we know in callback what to handle
   }
+  
   /*
   callback function for WWO data.
   */
-  function fulfillWorldWeatherOnlineRequest(bytes32 _requestId, bytes32 _data) public recordChainlinkFulfillment(_requestId){
-    emit RequestWWODataFulfilled(_requestId, _data);
+  function fulfillWorldWeatherOnlineRequest(bytes32 _requestId, int256 _avgTempF) public recordChainlinkFulfillment(_requestId){
+    emit RequestWWODataFulfilled(_requestId, _avgTempF);
+    avgtempF = _avgTempF;
   }
   
 /*
