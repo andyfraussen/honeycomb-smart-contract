@@ -1,0 +1,1 @@
+<?php /**PATH /Users/andy/Projects/honeycomb-smart-contract/front-end/honeycomb/resources/views/components/header.blade.php ENDPATH**/ ?>
