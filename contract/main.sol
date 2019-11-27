@@ -13,7 +13,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
     string private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
     
     struct RentalContract {
-        //the ID of the equipment being rented, i.e. surfboards or kites.
+        // Param _equipmentId the ID of the equipment being rented, which could for example be surfboards or kites.
         uint256 equipmentId;
         //Unique ID for this rental, as single user might be able to rent twice, we need distinction
         uint256 rentalId;
@@ -57,17 +57,24 @@ contract SunnyRental is ChainlinkClient, Ownable {
     /**
     ** Registers a new campaign
     **
-    ** Param _equipmentId
-    ** Param _startDate
-    ** Param _endDate
+    ** Param _equipmentId the ID of the equipment being rented, which could for example be surfboards or kites.
+    ** Param _rentalId unique ID for this rental, as single user might be able to rent twice, we need distinction
+    ** Param _startDate the start date of the rental that is requested
+    ** Param _endDate the end date of the rental that is requested
     ** Param _minWindspeedKmph the minimum average daily windspeed required for the rental fee to be paid out.
     ** Param _serviceFeePct the percentage of the rental amount the rental company still gets when conditions are not met.
     **
     ** Payable ensures the client can deposit ether that will be paid out to the rental company when the weatherconditions are met.
+    **
+    ** Due to `require`, the txn will fail if conditions not met
     **/
     function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFeePct) public payable {
-        //validate that the item is not rented out during that period.
+        //validate input dates
+        require(_startDate < _endDate && _startDate > now,"invalid period given");
         
+        //validate that the equipment is available during the requested period
+        require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
+
         //if all checks passed, register the rental contract
         rentalContracts[_equipmentId].push(RentalContract(
             _equipmentId,
@@ -79,6 +86,31 @@ contract SunnyRental is ChainlinkClient, Ownable {
             msg.value, //amount
             _serviceFeePct,
             ""));
+    }
+    
+    /**
+    ** Validates if a certain equipment is available for rent during the given period.
+    ** 
+    ** 
+    ** 
+    ** 
+    ** Param _startDate the start date of the rental that is requested
+    ** Param _endDate the end date of the rental that is requested
+    */
+    function equipmentAvailableDuringPeriod(uint256 _equipmentId,uint256 _startDate,uint256 _endDate) private returns (bool){
+        RentalContract[] storage rentalContractsForEquipmentId =  rentalContracts[_equipmentId];
+        for (uint i=0; i<rentalContractsForEquipmentId.length; i++) {
+            //startdate falls somewhere between existing renting period -- already booked
+            if(rentalContractsForEquipmentId[i].startDate < _startDate && _startDate < rentalContractsForEquipmentId[i].endDate){
+                return false;
+            }
+            //enddate falls somewhere between existing renting period -- already booked
+            if(rentalContractsForEquipmentId[i].startDate < _endDate && _endDate < rentalContractsForEquipmentId[i].endDate){
+                return false;
+            }
+        }
+        //no clashes, available for renting
+        return true;
     }
     
     function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public view {
