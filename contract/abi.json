@@ -1,6 +1,6 @@
 [
 	{
-		"constant": false,
+		"constant": true,
 		"inputs": [
 			{
 				"name": "_equipmentId",
@@ -23,25 +23,21 @@
 			}
 		],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
+		"constant": true,
+		"inputs": [],
+		"name": "getChainlinkToken",
+		"outputs": [
 			{
-				"name": "_requestId",
-				"type": "bytes32"
-			},
-			{
-				"name": "_avgTempF",
-				"type": "int256"
+				"name": "",
+				"type": "address"
 			}
 		],
-		"name": "fulfillWorldWeatherOnlineRequest",
-		"outputs": [],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -88,6 +84,47 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withdrawLink",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"name": "_rentalId",
+				"type": "uint256"
+			}
+		],
+		"name": "requestSettlement",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -105,11 +142,15 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_newOwner",
-				"type": "address"
+				"name": "_requestId",
+				"type": "bytes32"
+			},
+			{
+				"name": "_avgTempF",
+				"type": "int256"
 			}
 		],
-		"name": "transferOwnership",
+		"name": "fulfillWorldWeatherOnlineRequest",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -117,8 +158,13 @@
 	},
 	{
 		"constant": false,
-		"inputs": [],
-		"name": "withdrawLink",
+		"inputs": [
+			{
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -211,51 +257,5 @@
 		],
 		"name": "ChainlinkCancelled",
 		"type": "event"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getChainlinkToken",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_equipmentId",
-				"type": "uint256"
-			},
-			{
-				"name": "_rentalId",
-				"type": "uint256"
-			}
-		],
-		"name": "requestSettlement",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
 	}
 ]

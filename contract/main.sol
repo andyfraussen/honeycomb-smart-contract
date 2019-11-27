@@ -95,7 +95,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
     ** Param _startDate the start date of the rental that is requested
     ** Param _endDate the end date of the rental that is requested
     */
-    function equipmentAvailableDuringPeriod(uint256 _equipmentId,uint256 _startDate,uint256 _endDate) public returns (bool){
+    function equipmentAvailableDuringPeriod(uint256 _equipmentId,uint256 _startDate,uint256 _endDate) public view returns (bool){
         RentalContract[] storage rentalContractsForEquipmentId =  rentalContracts[_equipmentId];
         for (uint i=0; i<rentalContractsForEquipmentId.length; i++) {
             //startdate falls somewhere between existing renting period -- already booked
