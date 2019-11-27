@@ -29,15 +29,20 @@ contract SunnyRental is ChainlinkClient, Ownable {
         uint256 amount;
         //the percentage of `amount` that is paid out as a service fee in case requirements are not met. `amount`-`serviceFeePct` is returned to the customer.
         uint256 serviceFeePct;
-        //storing the retrieved windspeeds for the period of the rental
-        //key: date, value: windspeed.
-        mapping (uint256 => uint256) dailyWindSpeeds;
-        //storing wether or not windspeed has been retrieved for a specific day. Useful for when windspeed is 0 as uint256 defaults to 0, we would not know if it was retrieved as 0 or defaulting to 0.
-        //key: date, value: TRUE if it was retrieved. default FALSE when it hasn't been retrieved.
-        mapping (uint256 => bool) dailyWindSpeedsRetrieved;
         //the ID for the payout CL fulfillment request for this contract.
         string payoutRequestId;
     }
+    
+    //storing the retrieved windspeeds for the period of the rental
+    struct DailyWindSpeed {
+        uint256 date;
+        uint256 speed;
+        //TRUE if it was retrieved. default FALSE when it hasn't been retrieved
+        bool retrieved;
+    }
+    
+    //maps rentalId to the retrieved windspeeds for that day
+    mapping(uint256 => DailyWindSpeed[]) dailyWindSpeedsForRentalId;
     
      //maps equipmentId to a list of rental contracts for that equipmentId.
     mapping(uint256 => RentalContract[]) rentalContracts;
@@ -78,7 +83,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
         require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
         
         //if all checks passed, register the rental contract
-        rentalContracts[_equipmentId].push(RentalContract(
+        RentalContract memory r = RentalContract(
             _equipmentId,
             _rentalId,
             msg.sender, //customer
@@ -87,7 +92,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
             _minWindspeedKmph,
             msg.value, //amount
             _serviceFeePct,
-            ""));
+            "");
+        rentalContracts[_equipmentId].push(r);
     }
     
     /**
