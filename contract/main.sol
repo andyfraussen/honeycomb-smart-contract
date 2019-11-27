@@ -14,7 +14,9 @@ contract SunnyRental is ChainlinkClient, Ownable {
     
     struct RentalContract {
         //the ID of the equipment being rented, i.e. surfboards or kites.
-        string equipmentId;
+        uint256 equipmentId;
+        //Unique ID for this rental, as single user might be able to rent twice, we need distinction
+        uint256 rentalId;
         //address of the customer that initiates the rental contract
         address customer;
         //first day of the rental - inclusive
@@ -33,12 +35,14 @@ contract SunnyRental is ChainlinkClient, Ownable {
         //storing wether or not windspeed has been retrieved for a specific day. Useful for when windspeed is 0 as uint256 defaults to 0, we would not know if it was retrieved as 0 or defaulting to 0.
         //key: date, value: TRUE if it was retrieved. default FALSE when it hasn't been retrieved.
         mapping (uint256 => bool) dailyWindSpeedsRetrieved;
+        //the ID for the payout CL fulfillment request for this contract.
+        string payoutRequestId;
     }
     
-     //maps equipmentId to his active rental contracts. Each equipment can only have one active contract at a time.
-    mapping(string => RentalContract) rentalContracts;
-    //maps the payout request id to the equipmentId it was requested for
-    mapping(bytes32 => string) payoutRequests;
+     //maps equipmentId to a list of rental contracts for that equipmentId.
+    mapping(uint256 => RentalContract[]) rentalContracts;
+    //maps the payout request id to the equipmentId for later lookup. (avoid looping over every equipmentId in `rentalContracts` mapping)
+    mapping(bytes32 => uint256) payoutRequests;
 
     constructor() public Ownable() {
         setPublicChainlinkToken();
@@ -53,7 +57,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
     /**
     ** Registers a new campaign
     **
-    ** Param _rentalId
+    ** Param _equipmentId
     ** Param _startDate
     ** Param _endDate
     ** Param _minWindspeedKmph the minimum average daily windspeed required for the rental fee to be paid out.
@@ -61,8 +65,32 @@ contract SunnyRental is ChainlinkClient, Ownable {
     **
     ** Payable ensures the client can deposit ether that will be paid out to the rental company when the weatherconditions are met.
     **/
-    function registerRentalContract(string _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFeePct) public payable {
+    function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFeePct) public payable {
+        //validate that the item is not rented out during that period.
         
+        //if all checks passed, register the rental contract
+        rentalContracts[_equipmentId].push(RentalContract(
+            _equipmentId,
+            _rentalId,
+            msg.sender, //customer
+            _startDate,
+            _endDate,
+            _minWindspeedKmph,
+            msg.value, //amount
+            _serviceFeePct,
+            ""));
+    }
+    
+    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public view {
+        RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
+        RentalContract rentalContract;
+        for (uint i=0; i<contractsForEquipmentId.length; i++) {
+            if(contractsForEquipmentId[i].rentalId == _rentalId){
+                rentalContract = contractsForEquipmentId[i];
+                break;
+            }
+        }
+        require(rentalContract.customer != 0, "rental contract not found");
     }
     
     function requestSettlement(string equipmentId) public{
