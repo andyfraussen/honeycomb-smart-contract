@@ -77,22 +77,23 @@ contract SunnyRental is ChainlinkClient, Ownable {
         
 
         //validate input dates
-        require(_startDate < _endDate && _startDate > block.timestamp,"invalid period given");
+        require(_startDate < _endDate,"invalid period given"); //TODO after testing add  && _startDate > block.timestamp for real timestamp
         
         //validate that the equipment is available during the requested period
         require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
         
         //if all checks passed, register the rental contract
-        RentalContract memory r = RentalContract(
-            _equipmentId,
-            _rentalId,
-            msg.sender, //customer
-            _startDate,
-            _endDate,
-            _minWindspeedKmph,
-            msg.value, //amount
-            _serviceFeePct,
-            "");
+        RentalContract memory r;
+        
+        r.equipmentId= _equipmentId;
+        r.rentalId = _rentalId;
+        r.customer = msg.sender;
+        r.startDate = _startDate;
+        r.endDate = _endDate;
+        r.dailyRequiredWindspeedKmph = _minWindspeedKmph;
+        r.amount = msg.value;
+        r.serviceFeePct = _serviceFeePct;
+            
         rentalContracts[_equipmentId].push(r);
     }
     
