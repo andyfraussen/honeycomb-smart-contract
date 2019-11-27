@@ -69,12 +69,14 @@ contract SunnyRental is ChainlinkClient, Ownable {
     ** Due to `require`, the txn will fail if conditions not met
     **/
     function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFeePct) public payable {
+        
+
         //validate input dates
-        require(_startDate < _endDate && _startDate > now,"invalid period given");
+        require(_startDate < _endDate && _startDate > block.timestamp,"invalid period given");
         
         //validate that the equipment is available during the requested period
         require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
-
+        
         //if all checks passed, register the rental contract
         rentalContracts[_equipmentId].push(RentalContract(
             _equipmentId,
