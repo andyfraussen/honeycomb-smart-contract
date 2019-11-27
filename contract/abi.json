@@ -1,76 +1,29 @@
 [
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "getChainlinkToken",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "rentalContractId",
-				"type": "string"
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"name": "_startDate",
+				"type": "uint256"
+			},
+			{
+				"name": "_endDate",
+				"type": "uint256"
 			}
 		],
-		"name": "updateWeather",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
+		"name": "equipmentAvailableDuringPeriod",
 		"outputs": [
 			{
 				"name": "",
-				"type": "address"
+				"type": "bool"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "withdrawLink",
-		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "avgtempF",
-		"outputs": [
-			{
-				"name": "",
-				"type": "int256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -95,11 +48,77 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"name": "_rentalId",
+				"type": "uint256"
+			},
+			{
+				"name": "_startDate",
+				"type": "uint256"
+			},
+			{
+				"name": "_endDate",
+				"type": "uint256"
+			},
+			{
+				"name": "_minWindspeedKmph",
+				"type": "uint256"
+			},
+			{
+				"name": "_serviceFeePct",
+				"type": "uint256"
+			}
+		],
+		"name": "registerRentalContract",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "equipmentId",
+				"type": "string"
+			}
+		],
+		"name": "requestSettlement",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_newOwner",
 				"type": "address"
 			}
 		],
 		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withdrawLink",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -192,5 +211,51 @@
 		],
 		"name": "ChainlinkCancelled",
 		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getChainlinkToken",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"name": "_rentalId",
+				"type": "uint256"
+			}
+		],
+		"name": "requestSettlement",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]
