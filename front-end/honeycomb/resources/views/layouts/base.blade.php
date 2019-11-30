@@ -7,6 +7,9 @@
     <!-- Base Css -->
     @include('layouts.css')
 
+    <!-- Base Headscripts -->
+    @include('layouts.headScripts')
+
     <!-- Custom page css -->
     @yield('css')
 
@@ -17,7 +20,9 @@
 
 <div id="app">
     @include('components.header')
-    @yield('content')
+    <div class="container">
+        @yield('content')
+    </div>
     @include('components.footer')
 </div>
 <!-- base scripts -->
