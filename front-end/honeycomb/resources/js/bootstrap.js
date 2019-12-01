@@ -1,4 +1,4 @@
-window._ = require('lodash');
+require('./jquery-3.4.1.min');
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support

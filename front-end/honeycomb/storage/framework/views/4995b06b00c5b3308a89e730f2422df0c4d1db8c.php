@@ -7,6 +7,9 @@
     <!-- Base Css -->
     <?php echo $__env->make('layouts.css', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
+    <!-- Base Headscripts -->
+    <?php echo $__env->make('layouts.headScripts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
     <!-- Custom page css -->
     <?php echo $__env->yieldContent('css'); ?>
 
@@ -17,7 +20,9 @@
 
 <div id="app">
     <?php echo $__env->make('components.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-    <?php echo $__env->yieldContent('content'); ?>
+    <div class="container">
+        <?php echo $__env->yieldContent('content'); ?>
+    </div>
     <?php echo $__env->make('components.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 </div>
 <!-- base scripts -->

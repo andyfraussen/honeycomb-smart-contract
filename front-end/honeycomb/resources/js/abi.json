@@ -1,0 +1,261 @@
+[
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_equipmentId",
+					"type": "uint256"
+				},
+				{
+					"name": "_startDate",
+					"type": "uint256"
+				},
+				{
+					"name": "_endDate",
+					"type": "uint256"
+				}
+			],
+			"name": "equipmentAvailableDuringPeriod",
+			"outputs": [
+				{
+					"name": "",
+					"type": "bool"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getChainlinkToken",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_equipmentId",
+					"type": "uint256"
+				},
+				{
+					"name": "_rentalId",
+					"type": "uint256"
+				},
+				{
+					"name": "_startDate",
+					"type": "uint256"
+				},
+				{
+					"name": "_endDate",
+					"type": "uint256"
+				},
+				{
+					"name": "_minWindspeedKmph",
+					"type": "uint256"
+				},
+				{
+					"name": "_serviceFeePct",
+					"type": "uint256"
+				}
+			],
+			"name": "registerRentalContract",
+			"outputs": [],
+			"payable": true,
+			"stateMutability": "payable",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [],
+			"name": "renounceOwnership",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "owner",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [],
+			"name": "withdrawLink",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_equipmentId",
+					"type": "uint256"
+				},
+				{
+					"name": "_rentalId",
+					"type": "uint256"
+				}
+			],
+			"name": "requestSettlement",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "equipmentId",
+					"type": "string"
+				}
+			],
+			"name": "requestSettlement",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_requestId",
+					"type": "bytes32"
+				},
+				{
+					"name": "_avgTempF",
+					"type": "int256"
+				}
+			],
+			"name": "fulfillWorldWeatherOnlineRequest",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_newOwner",
+					"type": "address"
+				}
+			],
+			"name": "transferOwnership",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "constructor"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "requestId",
+					"type": "bytes32"
+				},
+				{
+					"indexed": true,
+					"name": "data",
+					"type": "int256"
+				}
+			],
+			"name": "RequestWWODataFulfilled",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "previousOwner",
+					"type": "address"
+				}
+			],
+			"name": "OwnershipRenounced",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "previousOwner",
+					"type": "address"
+				},
+				{
+					"indexed": true,
+					"name": "newOwner",
+					"type": "address"
+				}
+			],
+			"name": "OwnershipTransferred",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "id",
+					"type": "bytes32"
+				}
+			],
+			"name": "ChainlinkRequested",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "id",
+					"type": "bytes32"
+				}
+			],
+			"name": "ChainlinkFulfilled",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "id",
+					"type": "bytes32"
+				}
+			],
+			"name": "ChainlinkCancelled",
+			"type": "event"
+		}
+	]
