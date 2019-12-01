@@ -17,7 +17,7 @@
                                 <p class="card-text"><?php echo e($product->description); ?></p>
                                 <div class="d-flex justify-content-between">
                                     <p class="card-text"><?php echo e($product->price); ?></p>
-                                    <a href="#" class="btn btn btn-primary">Buy</a>
+                                    <a href="<?php echo e(route('add-to-cart', ['id' => $product->id])); ?>" class="btn btn btn-primary">Buy</a>
                                 </div>
                             </div>
                         </div>

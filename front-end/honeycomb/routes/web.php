@@ -15,12 +15,15 @@ Route::get('/', 'ProductController@index');
 
 Route::get('/payment', 'paymentController@test');
 
-Auth::routes();
-
 Route::get('/home', 'HomeController@index')->name('home');
 
-
+// USER
+Auth::routes();
 
 // ADMIN
-
 Route::get('admin/home', 'HomeController@adminHome')->name('admin.home')->middleware('is_admin');
+
+// CART
+
+Route::get('add-to-cart/{id}', 'ProductController@AddToCart')->name('add-to-cart');
+Route::get('shopping-cart', 'ProductController@ShowCart')->name('cart');

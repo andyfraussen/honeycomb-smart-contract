@@ -19,7 +19,7 @@
                                 <p class="card-text">{{$product->description}}</p>
                                 <div class="d-flex justify-content-between">
                                     <p class="card-text">{{$product->price}}</p>
-                                    <a href="#" class="btn btn btn-primary">Buy</a>
+                                    <a href="{{route('add-to-cart', ['id' => $product->id])}}" class="btn btn btn-primary">Buy</a>
                                 </div>
                             </div>
                         </div>
