@@ -39,7 +39,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
     struct DailyWindSpeed {
         string dateString;
         uint256 speed;
-        string location;
     }
     
     
@@ -81,7 +80,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
     **
     ** Due to `require`, the txn will fail if conditions not met
     **/
-    function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFee, address _rentalCompany) public payable {
+    function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,string _location, uint256 _serviceFee, address _rentalCompany) public payable {
 
         //validate input dates
         require(_startDate < _endDate,"invalid period given"); //after testing add  && _startDate > block.timestamp for real timestamp
@@ -103,6 +102,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
         r.amount = msg.value;
         r.serviceFee = _serviceFee;
         r.company = _rentalCompany;
+        r.location = _location;
             
         rentalContracts[_equipmentId].push(r);
     }
