@@ -50,10 +50,10 @@ contract SunnyRental is ChainlinkClient, Ownable {
     //maps rentalId to the retrieved windspeeds for that day
     mapping(uint256 => DailyWindSpeed[]) dailyWindSpeeds;
     
-     //maps rentalId to the rental contracts.
-    mapping(uint256 => RentalContract) rentalContracts;
+    //maps equipmentId to a list of rental contracts for that equipmentId.
+    mapping(uint256 => RentalContract[]) rentalContracts;
     
-    //maps the payout request id to the rentalId for later lookup.
+     //maps the payout request id to the equipmentId for later lookup. (avoid looping over every equipmentId in `rentalContracts` mapping)
     mapping(bytes32 => uint256) payoutRequests;
 
     constructor() public Ownable() {
@@ -127,8 +127,15 @@ contract SunnyRental is ChainlinkClient, Ownable {
         return true;
     }
     
-    function requestSettlement(uint256 _rentalId) public returns (bytes32 requestId) {
-        RentalContract storage rentalContract =  rentalContracts[_rentalId];
+    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public returns (bytes32 requestId) {
+        RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
+        RentalContract memory rentalContract;
+        for (uint i=0; i<contractsForEquipmentId.length; i++) {
+            if(contractsForEquipmentId[i].rentalId == _rentalId){
+                rentalContract = contractsForEquipmentId[i];
+                break;
+            }
+        }
         require(rentalContract.customer != 0, "rental contract not found");
     
         
