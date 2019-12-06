@@ -8,10 +8,13 @@ contract SunnyRental is ChainlinkClient, Ownable {
     
     
     //private vars
-    uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //payment is 0.100 but sol cannot work with decimals.
-    address private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
-    string private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
+    uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //required oracle payment is 0.100 ether
+    address constant private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
+    string constant private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
     
+    /**
+     * The struct representing a single rental contract
+     **/
     struct RentalContract {
         // Param _equipmentId the ID of the equipment being rented, which could for example be surfboards or kites.
         uint256 equipmentId;
@@ -37,7 +40,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
     struct DailyWindSpeed {
         uint256 date;
         uint256 speed;
-        //TRUE if it was retrieved. default FALSE when it hasn't been retrieved
+        //TRUE if it was retrieved. default FALSE when it hasn't been retrieved.
+        //Used to differ speed 0 from no speed retrieved (default uint value also 0) 
         bool retrieved;
     }
     
@@ -120,9 +124,9 @@ contract SunnyRental is ChainlinkClient, Ownable {
         return true;
     }
     
-    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public view {
+    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public {
         RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
-        RentalContract rentalContract;
+        RentalContract memory rentalContract;
         for (uint i=0; i<contractsForEquipmentId.length; i++) {
             if(contractsForEquipmentId[i].rentalId == _rentalId){
                 rentalContract = contractsForEquipmentId[i];
@@ -130,12 +134,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
             }
         }
         require(rentalContract.customer != 0, "rental contract not found");
-    }
     
-    function requestSettlement(string equipmentId) public{
-        //get the requirements for the contract : location & min windspeed
-        
-        //TODO
         
         //for each day we don't have an avg windspeed for that's within the rental contract timespan, request it.
         
@@ -158,6 +157,16 @@ contract SunnyRental is ChainlinkClient, Ownable {
   */
   function fulfillWorldWeatherOnlineRequest(bytes32 _requestId, int256 _avgTempF) public recordChainlinkFulfillment(_requestId){
     emit RequestWWODataFulfilled(_requestId, _avgTempF);
+    
+    //add retrieved content to contract
+    
+    
+  }
+  
+  function validatePayoutRequirements(uint256 _equipmentId,uint256 _rentalId) private {
+      //check if all data is retrieved
+      
+      //if so, check if all requirements are met and relevant do payout(s)
   }
   
 /*
