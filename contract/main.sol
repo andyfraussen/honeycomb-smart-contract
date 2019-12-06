@@ -4,33 +4,6 @@ import "https://github.com/smartcontractkit/chainlink/evm/contracts/ChainlinkCli
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/vendor/Ownable.sol";
 import "https://github.com/bokkypoobah/BokkyPooBahsDateTimeLibrary/blob/1ea8ef42b3d8db17b910b46e4f8c124b59d77c03/contracts/BokkyPooBahsDateTimeLibrary.sol";
 
-library Strings {
-    function concat(string memory _base, string memory _value) internal pure returns (string) {
-        bytes memory _baseBytes = bytes(_base);
-        bytes memory _valueBytes = bytes(_value);
-
-        string memory _tmpValue = new string(_baseBytes.length + _valueBytes.length);
-        bytes memory _newValue = bytes(_tmpValue);
-
-        uint i;
-        uint j;
-
-        for(i=0; i<_baseBytes.length; i++) {
-            _newValue[j++] = _baseBytes[i];
-        }
-
-        for(i=0; i<_valueBytes.length; i++) {
-            _newValue[j++] = _valueBytes[i++];
-        }
-
-        return string(_newValue);
-    }
-    
-    function compareStrings (string memory a, string memory b) public pure returns (bool) {
-        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
-    }
-}
-
 contract SunnyRental is ChainlinkClient, Ownable {
     
     struct RentalContract {
@@ -66,8 +39,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
         uint256 speed;
     }
     
-    
-    using Strings for string;
     uint256 constant private ORACLE_PAYMENT = 1*LINK/10;
     address constant private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
     string constant private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
@@ -90,7 +61,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
 
     //event definitions
     event RequestWWODataFulfilled(bytes32 indexed requestId,int256 indexed data);
-        
+    
     /**
     ** Registers a new campaign
     **
@@ -206,13 +177,17 @@ contract SunnyRental is ChainlinkClient, Ownable {
   
   function weatherWasRetrieved(string _dayString,uint256 _rentalId) public view returns (bool retrieved){
       for(uint j=0;j < dailyWindSpeedsForRental[_rentalId].length;j++){
-          if( dailyWindSpeedsForRental[_rentalId][j].dateString.compareStrings(_dayString) == true){
+          if( compareStrings(dailyWindSpeedsForRental[_rentalId][j].dateString,_dayString) == true){
               return true;
               
           }
       }
       return false;
   }
+  
+  function compareStrings (string memory a, string memory b) public pure returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
   
   function requestWeatherFromOracle(string _dayString,string _location) private returns (bytes32 requestId){
       //docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
@@ -275,16 +250,15 @@ contract SunnyRental is ChainlinkClient, Ownable {
     }
   }
   
-  function timestampToDateString(uint256 ts)public view returns (string dateString){
+  function timestampToDateString(uint256 ts)public returns (string dateString){
       uint year;
       uint month;
       uint day;
       (year, month, day) = BokkyPooBahsDateTimeLibrary.timestampToDate(ts);
-      dateString = uintToString(year).concat("-").concat(uintToString(month)).concat("-").concat(uintToString(day));
-      
+      dateString = strConcat(uintToString(year),"-",uintToString(month),"-",uintToString(day));
   }
   
-  function uintToString(uint v) constant returns (string str) {
+  function uintToString(uint v) public constant returns (string str) {
         uint maxlength = 100;
         bytes memory reversed = new bytes(maxlength);
         uint i = 0;
@@ -299,5 +273,22 @@ contract SunnyRental is ChainlinkClient, Ownable {
         }
         str = string(s);
     }
+    function strConcat(string _a, string _b, string _c, string _d, string _e) internal returns (string){
+        bytes memory _ba = bytes(_a);
+        bytes memory _bb = bytes(_b);
+        bytes memory _bc = bytes(_c);
+        bytes memory _bd = bytes(_d);
+        bytes memory _be = bytes(_e);
+        string memory abcde = new string(_ba.length + _bb.length + _bc.length + _bd.length + _be.length);
+        bytes memory babcde = bytes(abcde);
+        uint k = 0;
+        for (uint i = 0; i < _ba.length; i++) babcde[k++] = _ba[i];
+        for (i = 0; i < _bb.length; i++) babcde[k++] = _bb[i];
+        for (i = 0; i < _bc.length; i++) babcde[k++] = _bc[i];
+        for (i = 0; i < _bd.length; i++) babcde[k++] = _bd[i];
+        for (i = 0; i < _be.length; i++) babcde[k++] = _be[i];
+        return string(babcde);
+}
+
 }
 
