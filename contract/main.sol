@@ -58,6 +58,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
         uint256 rentalId;
         //address of the customer that initiates the rental contract
         address customer;
+        //address of the company offering the rental
+        address company;
         //first day of the rental - inclusive
         uint256 startDate;
         //last day of the rental - inclusive
@@ -68,10 +70,12 @@ contract SunnyRental is ChainlinkClient, Ownable {
         uint256 dailyRequiredWindspeedKmph;
         //the total amount to be paid after successful rental.
         uint256 amount;
-        //the percentage of `amount` that is paid out as a service fee in case requirements are not met. `amount`-`serviceFeePct` is returned to the customer.
-        uint256 serviceFeePct;
+        //the service fee that is paid out in case requirements are not met. `amount`-`serviceFee` is returned to the customer.
+        uint256 serviceFee;
         //the ID for the payout CL fulfillment request for this contract.
         string payoutRequestId;
+        //check if payout already happened
+        bool payoutDone;
     }
     
     //storing the retrieved windspeeds for the period of the rental
@@ -106,13 +110,13 @@ contract SunnyRental is ChainlinkClient, Ownable {
     ** Param _startDate the start date of the rental that is requested
     ** Param _endDate the end date of the rental that is requested
     ** Param _minWindspeedKmph the minimum average daily windspeed required for the rental fee to be paid out.
-    ** Param _serviceFeePct the percentage of the rental amount the rental company still gets when conditions are not met.
+    ** Param _serviceFee the amount the rental company still gets when conditions are not met.
     **
     ** Payable ensures the client can deposit ether that will be paid out to the rental company when the weatherconditions are met.
     **
     ** Due to `require`, the txn will fail if conditions not met
     **/
-    function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFeePct) public payable {
+    function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFee, address _rentalCompany) public payable {
         
 
         //validate input dates
@@ -120,6 +124,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
         
         //validate that the equipment is available during the requested period
         require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
+        
+        require(_serviceFee < msg.value,"rental fee must be smaller than the total amount paid");
         
         //if all checks passed, register the rental contract
         RentalContract memory r;
@@ -131,7 +137,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
         r.endDate = _endDate;
         r.dailyRequiredWindspeedKmph = _minWindspeedKmph;
         r.amount = msg.value;
-        r.serviceFeePct = _serviceFeePct;
+        r.serviceFee = _serviceFee;
+        r.company = _rentalCompany;
             
         rentalContracts[_equipmentId].push(r);
     }
@@ -160,49 +167,73 @@ contract SunnyRental is ChainlinkClient, Ownable {
     }
     
     function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public returns (bytes32 requestId) {
-        RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
-        RentalContract memory rentalContract;
-        for (uint i=0; i<contractsForEquipmentId.length; i++) {
-            if(contractsForEquipmentId[i].rentalId == _rentalId){
-                rentalContract = contractsForEquipmentId[i];
-                break;
+        RentalContract memory r = getRentalContract(_equipmentId,_rentalId);
+        require(r.customer != 0, "rental contract not found");
+        
+        //no need to pay twice
+        if (r.payoutDone){
+            return;
+        }
+        
+        bool allWeatherRetrieved = true;
+        //for each day we don't have an avg windspeed for that's within the rental contract timespan, request it.
+        for(uint256 ts = r.startDate;ts < r.endDate;ts +=dayInSeconds){
+            string memory dayString = timestampToDateString(ts);
+            if(!weatherWasRetrieved(dayString,_rentalId)){
+                requestId = requestWeatherFromOracle(dayString,r.location);
+                payoutRequests[requestId] = _rentalId;
+                allWeatherRetrieved = false;
             }
         }
-        require(rentalContract.customer != 0, "rental contract not found");
-    
-        
-        //for each day we don't have an avg windspeed for that's within the rental contract timespan, request it.
-        
-        //loop over all dates that fall within the rental period
-        for(uint256 ts = rentalContract.startDate;ts < rentalContract.endDate;ts +=dayInSeconds){
-            string memory dayString = timestampToDateString(ts);
-            //check if we have weather for this dayString
-            bool weatherRetrieved = false;
-            for(uint j=0;j < dailyWindSpeedsForRental[_rentalId].length;j++){
-                //date matches
-                if( dailyWindSpeedsForRental[_rentalId][j].dateString.compareStrings(dayString) == true){
-                    weatherRetrieved = true;
+        //if we did not have to retrieve new weather data, we can continue with settlement.
+        if(allWeatherRetrieved){
+            bool requirementsSatisfied = true;
+            //check if any of them do not meet requirements
+            for(uint i = 0 ; i < dailyWindSpeedsForRental[_rentalId].length; i++){
+                DailyWindSpeed dailyWindSpeed = dailyWindSpeedsForRental[_rentalId][i];
+                if(dailyWindSpeed.speed < r.dailyRequiredWindspeedKmph){
+                    requirementsSatisfied = false;
+                    break;
                 }
             }
-            if(!weatherRetrieved){
-                //request Weather for day / rental id
-                requestWeather(dayString,rentalContract.location);
-                //store that this CL request was made for the rentalId so we know in callback what to handle
-                payoutRequests[requestId] = _rentalId;
+            if(requirementsSatisfied){
+                r.company.transfer(r.amount);
+            }else{
+                r.company.transfer(r.serviceFee);
+                r.customer.transfer(r.amount-r.serviceFee);
             }
         }
   }
   
-  function requestWeather(string _dayString,string _location) private returns (bytes32 requestId){
-      
-      //call HC API for yesterday's daily average precipitation  - docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
-        Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(honeycombWWOPastWeatherInt256JobId), this, this.fulfillWorldWeatherOnlineRequest.selector);
-        req.add("q",_location);
-        req.add("date",_dayString);
-        req.add("tp","24");
-        //start with avg temp. later: windspeed for surfing
-        req.add("copyPath", "data.weather.0.avgtempF");
-        requestId = sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
+  function getRentalContract(uint256 _equipmentId,uint256 _rentalId) private view returns (RentalContract){
+      RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
+        for (uint i=0; i<contractsForEquipmentId.length; i++) {
+            if(contractsForEquipmentId[i].rentalId == _rentalId){
+                return contractsForEquipmentId[i];
+            }
+        }
+        return;
+  }
+  
+  function weatherWasRetrieved(string _dayString,uint256 _rentalId) public view returns (bool retrieved){
+      for(uint j=0;j < dailyWindSpeedsForRental[_rentalId].length;j++){
+          if( dailyWindSpeedsForRental[_rentalId][j].dateString.compareStrings(_dayString) == true){
+              return true;
+              
+          }
+      }
+      return false;
+  }
+  
+  function requestWeatherFromOracle(string _dayString,string _location) private returns (bytes32 requestId){
+      //docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
+      Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(honeycombWWOPastWeatherInt256JobId), this, this.fulfillWorldWeatherOnlineRequest.selector);
+      req.add("q",_location);
+      req.add("date",_dayString);
+      req.add("tp","24");
+      //start with avg temp. later: windspeed for surfing
+      req.add("copyPath", "data.weather.0.avgtempF");
+      requestId = sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
   }
   
   /*
