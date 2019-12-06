@@ -82,10 +82,9 @@ contract SunnyRental is ChainlinkClient, Ownable {
     ** Due to `require`, the txn will fail if conditions not met
     **/
     function registerRentalContract(uint256 _equipmentId,uint256 _rentalId,uint256 _startDate,uint256 _endDate, uint256 _minWindspeedKmph,uint256 _serviceFee, address _rentalCompany) public payable {
-        
 
         //validate input dates
-        require(_startDate < _endDate,"invalid period given"); //TODO after testing add  && _startDate > block.timestamp for real timestamp
+        require(_startDate < _endDate,"invalid period given"); //after testing add  && _startDate > block.timestamp for real timestamp
         
         //validate that the equipment is available during the requested period
         require(equipmentAvailableDuringPeriod(_equipmentId,_startDate,_endDate) == true, "equipment not available in given period");
@@ -119,11 +118,11 @@ contract SunnyRental is ChainlinkClient, Ownable {
         RentalContract[] storage rentalContractsForEquipmentId =  rentalContracts[_equipmentId];
         for (uint i=0; i<rentalContractsForEquipmentId.length; i++) {
             //startdate falls somewhere between existing renting period -- already booked
-            if(rentalContractsForEquipmentId[i].startDate < _startDate && _startDate < rentalContractsForEquipmentId[i].endDate){
+            if(rentalContractsForEquipmentId[i].startDate <= _startDate && _startDate <= rentalContractsForEquipmentId[i].endDate){
                 return false;
             }
             //enddate falls somewhere between existing renting period -- already booked
-            if(rentalContractsForEquipmentId[i].startDate < _endDate && _endDate < rentalContractsForEquipmentId[i].endDate){
+            if(rentalContractsForEquipmentId[i].startDate <= _endDate && _endDate <= rentalContractsForEquipmentId[i].endDate){
                 return false;
             }
         }
@@ -131,7 +130,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
         return true;
     }
     
-    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public returns (bytes32 requestId) {
+    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public {
         RentalContract memory r = getRentalContract(_equipmentId,_rentalId);
         require(r.customer != 0, "rental contract not found");
         
@@ -145,29 +144,29 @@ contract SunnyRental is ChainlinkClient, Ownable {
         for(uint256 ts = r.startDate;ts < r.endDate;ts +=dayInSeconds){
             string memory dayString = timestampToDateString(ts);
             if(!weatherWasRetrieved(dayString,_rentalId)){
-                requestId = requestWeatherFromOracle(dayString,r.location);
+                bytes32 requestId = requestWeatherFromOracle(dayString,r.location);
                 payoutRequests[requestId] = _rentalId;
                 allWeatherRetrieved = false;
             }
         }
         //if we did not have to retrieve new weather data, we can continue with settlement.
-        if(allWeatherRetrieved){
-            bool requirementsSatisfied = true;
-            //check if any of them do not meet requirements
-            for(uint i = 0 ; i < dailyWindSpeedsForRental[_rentalId].length; i++){
-                DailyWindSpeed dailyWindSpeed = dailyWindSpeedsForRental[_rentalId][i];
-                if(dailyWindSpeed.speed < r.dailyRequiredWindspeedKmph){
-                    requirementsSatisfied = false;
-                    break;
-                }
-            }
-            if(requirementsSatisfied){
-                r.company.transfer(r.amount);
-            }else{
-                r.company.transfer(r.serviceFee);
-                r.customer.transfer(r.amount-r.serviceFee);
-            }
-        }
+        // if(allWeatherRetrieved){
+        //     bool requirementsSatisfied = true;
+        //     //check if any of them do not meet requirements
+        //     for(uint i = 0 ; i < dailyWindSpeedsForRental[_rentalId].length; i++){
+        //         DailyWindSpeed dailyWindSpeed = dailyWindSpeedsForRental[_rentalId][i];
+        //         if(dailyWindSpeed.speed < r.dailyRequiredWindspeedKmph){
+        //             requirementsSatisfied = false;
+        //             break;
+        //         }
+        //     }
+        //     if(requirementsSatisfied){
+        //         r.company.transfer(r.amount);
+        //     }else{
+        //         r.company.transfer(r.serviceFee);
+        //         r.customer.transfer(r.amount-r.serviceFee);
+        //     }
+        // }
   }
   
   function getRentalContract(uint256 _equipmentId,uint256 _rentalId) private view returns (RentalContract){
