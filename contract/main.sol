@@ -26,6 +26,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
         uint256 startDate;
         //last day of the rental - inclusive
         uint256 endDate;
+        //location of the rental
+        string location;
         //the average daily windspeed that is required for the contract to be 
         uint256 dailyRequiredWindspeedKmph;
         //the total amount to be paid after successful rental.
@@ -46,11 +48,12 @@ contract SunnyRental is ChainlinkClient, Ownable {
     }
     
     //maps rentalId to the retrieved windspeeds for that day
-    mapping(uint256 => DailyWindSpeed[]) dailyWindSpeedsForRentalId;
+    mapping(uint256 => DailyWindSpeed[]) dailyWindSpeeds;
     
-     //maps equipmentId to a list of rental contracts for that equipmentId.
-    mapping(uint256 => RentalContract[]) rentalContracts;
-    //maps the payout request id to the equipmentId for later lookup. (avoid looping over every equipmentId in `rentalContracts` mapping)
+     //maps rentalId to the rental contracts.
+    mapping(uint256 => RentalContract) rentalContracts;
+    
+    //maps the payout request id to the rentalId for later lookup.
     mapping(bytes32 => uint256) payoutRequests;
 
     constructor() public Ownable() {
@@ -124,15 +127,8 @@ contract SunnyRental is ChainlinkClient, Ownable {
         return true;
     }
     
-    function requestSettlement(uint256 _equipmentId,uint256 _rentalId) public {
-        RentalContract[] storage contractsForEquipmentId =  rentalContracts[_equipmentId];
-        RentalContract memory rentalContract;
-        for (uint i=0; i<contractsForEquipmentId.length; i++) {
-            if(contractsForEquipmentId[i].rentalId == _rentalId){
-                rentalContract = contractsForEquipmentId[i];
-                break;
-            }
-        }
+    function requestSettlement(uint256 _rentalId) public returns (bytes32 requestId) {
+        RentalContract storage rentalContract =  rentalContracts[_rentalId];
         require(rentalContract.customer != 0, "rental contract not found");
     
         
@@ -147,9 +143,10 @@ contract SunnyRental is ChainlinkClient, Ownable {
         req.add("tp","24");
         //start with avg temp. later: windspeed for surfing
         req.add("copyPath", "data.weather.0.avgtempF");
-        sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
-        
-        //store that this CL request was made for the rentalContractId so we know in callback what to handle
+        requestId = sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
+    
+        //store that this CL request was made for the rentalId so we know in callback what to handle
+        payoutRequests[requestId] = _rentalId;
   }
   
   /*
@@ -160,6 +157,11 @@ contract SunnyRental is ChainlinkClient, Ownable {
     
     //add retrieved content to contract
     
+    
+    uint256 equipmentId = 1;
+    uint256 rentalId =1 ;
+    
+    validatePayoutRequirements(equipmentId,rentalId);
     
   }
   
