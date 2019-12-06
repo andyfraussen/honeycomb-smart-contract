@@ -2,15 +2,51 @@ pragma solidity 0.4.24;
 
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/ChainlinkClient.sol";
 import "https://github.com/smartcontractkit/chainlink/evm/contracts/vendor/Ownable.sol";
+import "https://github.com/bokkypoobah/BokkyPooBahsDateTimeLibrary/blob/1ea8ef42b3d8db17b910b46e4f8c124b59d77c03/contracts/BokkyPooBahsDateTimeLibrary.sol";
+
+
+library Strings {
+    
+
+    function concat(string _base, string _value) internal returns (string) {
+        bytes memory _baseBytes = bytes(_base);
+        bytes memory _valueBytes = bytes(_value);
+
+        string memory _tmpValue = new string(_baseBytes.length + _valueBytes.length);
+        bytes memory _newValue = bytes(_tmpValue);
+
+        uint i;
+        uint j;
+
+        for(i=0; i<_baseBytes.length; i++) {
+            _newValue[j++] = _baseBytes[i];
+        }
+
+        for(i=0; i<_valueBytes.length; i++) {
+            _newValue[j++] = _valueBytes[i++];
+        }
+
+        return string(_newValue);
+    }
+    
+    function compareStrings (string memory a, string memory b) public view 
+       returns (bool) {
+  return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
+
+       }
+    
+
+}
 
 
 contract SunnyRental is ChainlinkClient, Ownable {
     
-    
+     using Strings for string;
     //private vars
     uint256 constant private ORACLE_PAYMENT = 1*LINK/10; //required oracle payment is 0.100 ether
     address constant private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
     string constant private honeycombWWOPastWeatherInt256JobId = "67c9353f7cc94102b750f84f32027217";
+    uint dayInSeconds = 86400;
     
     /**
      * The struct representing a single rental contract
@@ -40,15 +76,13 @@ contract SunnyRental is ChainlinkClient, Ownable {
     
     //storing the retrieved windspeeds for the period of the rental
     struct DailyWindSpeed {
-        uint256 date;
+        string dateString;
         uint256 speed;
-        //TRUE if it was retrieved. default FALSE when it hasn't been retrieved.
-        //Used to differ speed 0 from no speed retrieved (default uint value also 0) 
-        bool retrieved;
+        string location;
     }
     
     //maps rentalId to the retrieved windspeeds for that day
-    mapping(uint256 => DailyWindSpeed[]) dailyWindSpeeds;
+    mapping(uint256 => DailyWindSpeed[]) dailyWindSpeedsForRental;
     
     //maps equipmentId to a list of rental contracts for that equipmentId.
     mapping(uint256 => RentalContract[]) rentalContracts;
@@ -64,8 +98,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
     //event definitions
     event RequestWWODataFulfilled(bytes32 indexed requestId,int256 indexed data);
         
-    
-    
     /**
     ** Registers a new campaign
     **
@@ -141,19 +173,36 @@ contract SunnyRental is ChainlinkClient, Ownable {
         
         //for each day we don't have an avg windspeed for that's within the rental contract timespan, request it.
         
-        //TODO loop
-        
-        //call HC API for yesterday's daily average precipitation  - docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
+        //loop over all dates that fall within the rental period
+        for(uint256 ts = rentalContract.startDate;ts < rentalContract.endDate;ts +=dayInSeconds){
+            string memory dayString = timestampToDateString(ts);
+            //check if we have weather for this dayString
+            bool weatherRetrieved = false;
+            for(uint j=0;j < dailyWindSpeedsForRental[_rentalId].length;j++){
+                //date matches
+                if( dailyWindSpeedsForRental[_rentalId][j].dateString.compareStrings(dayString) == true){
+                    weatherRetrieved = true;
+                }
+            }
+            if(!weatherRetrieved){
+                //request Weather for day / rental id
+                requestWeather(dayString,rentalContract.location);
+                //store that this CL request was made for the rentalId so we know in callback what to handle
+                payoutRequests[requestId] = _rentalId;
+            }
+        }
+  }
+  
+  function requestWeather(string _dayString,string _location) private returns (bytes32 requestId){
+      
+      //call HC API for yesterday's daily average precipitation  - docs @ https://www.worldweatheronline.com/developer/api/docs/historical-weather-api.aspx
         Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(honeycombWWOPastWeatherInt256JobId), this, this.fulfillWorldWeatherOnlineRequest.selector);
-        req.add("q","Brussels");
-        req.add("date","2019-11-24");
+        req.add("q",_location);
+        req.add("date",_dayString);
         req.add("tp","24");
         //start with avg temp. later: windspeed for surfing
         req.add("copyPath", "data.weather.0.avgtempF");
         requestId = sendChainlinkRequestTo(chainlinkOracleAddress(), req, ORACLE_PAYMENT);
-    
-        //store that this CL request was made for the rentalId so we know in callback what to handle
-        payoutRequests[requestId] = _rentalId;
   }
   
   /*
@@ -205,5 +254,30 @@ contract SunnyRental is ChainlinkClient, Ownable {
       result := mload(add(source, 32))
     }
   }
-
+  
+  function timestampToDateString(uint256 ts)public view returns (string dateString){
+      uint year;
+      uint month;
+      uint day;
+      (year, month, day) = BokkyPooBahsDateTimeLibrary.timestampToDate(ts);
+      dateString = uintToString(year).concat("-").concat(uintToString(month)).concat("-").concat(uintToString(day));
+      
+  }
+  
+  function uintToString(uint v) constant returns (string str) {
+        uint maxlength = 100;
+        bytes memory reversed = new bytes(maxlength);
+        uint i = 0;
+        while (v != 0) {
+            uint remainder = v % 10;
+            v = v / 10;
+            reversed[i++] = byte(48 + remainder);
+        }
+        bytes memory s = new bytes(i + 1);
+        for (uint j = 0; j <= i; j++) {
+            s[j] = reversed[i - j];
+        }
+        str = string(s);
+    }
 }
+
