@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "bootstrap": "^4.4.0",
+        "sha3": "^2.1.0",
         "web3": "^1.2.4"
     }
 }

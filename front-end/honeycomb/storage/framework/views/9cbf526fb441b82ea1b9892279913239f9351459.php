@@ -1,23 +1,21 @@
-@extends('layouts.base')
-
 <!-- Title-->
-@section('title')
+<?php $__env->startSection('title'); ?>
     Webshop
-@endsection
+<?php $__env->stopSection(); ?>
 <!-- End title -->
 <!-- Content-->
-@section('content')
-    @if(Session::has('cart'))
+<?php $__env->startSection('content'); ?>
+    <?php if(Session::has('cart')): ?>
         <div class="container">
             <div class="row">
                 <div class="col-sm-4 col-md-4 offset-3 offset-sm-3">
                     <ul class="list-group">
-                        @foreach($products as $product)
+                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li class="list-group-item d-flex justify-content-around">
-                                <span class="badge">{{ $product['qty'] }}</span>
-                                <strong id="productid">{{ $product['item']['id'] }}</strong>
-                                <strong>{{ $product['item']['title'] }}</strong>
-                                <span class="label label-success">{{$product['price']}}</span>
+                                <span class="badge"><?php echo e($product['qty']); ?></span>
+                                <strong id="productid"><?php echo e($product['item']['id']); ?></strong>
+                                <strong><?php echo e($product['item']['title']); ?></strong>
+                                <span class="label label-success"><?php echo e($product['price']); ?></span>
 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-primary dropdown-toggle">
@@ -29,15 +27,15 @@
                                     </button>
                                 </div>
                             </li>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12 col-md-6 ">
-                <strong>Total: {{ $totalPrice }}</strong>
-                @if($totalPrice > 0)
+                <strong>Total: <?php echo e($totalPrice); ?></strong>
+                <?php if($totalPrice > 0): ?>
                     <form>
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Start date</label>
@@ -61,12 +59,14 @@
                         </div>
                     </form>
                 <button id="checkoutButton" class="btn btn-danger">Checkout</button>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
-    @else
+    <?php else: ?>
 
-    @endif
-@endsection
+    <?php endif; ?>
+<?php $__env->stopSection(); ?>
 <!-- End content -->
+
+<?php echo $__env->make('layouts.base', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Users/fraussen/Projects/honeycomb-smart-contract/front-end/honeycomb/resources/views/cart.blade.php ENDPATH**/ ?>

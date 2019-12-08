@@ -1,20 +1,30 @@
 require('./bootstrap');
 require('./script');
-
-import Web3 from "web3";
-const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 var abi = require('./abi');
-let btn = document.getElementById('testbtn')
-// btn.onclick = function test()
-// {
-//     web3.eth.getAccounts().then(e => document.getElementById('testbox').innerHTML +=  e[0]);
-// }
 
-btn.onclick = function test() {
+let btn = document.getElementById('checkoutButton')
 
-    var contract = new web3.eth.Contract(abi, '0xdB824df2788FF1Cb086773a94708e690EA555b91');
+btn.onclick = async () => {
+    if (window.ethereum) {
+        window.web3 = new Web3(ethereum);
+        try {
+            await ethereum.enable();
+            var contract = web3.eth.contract(abi, '0x26B7FD747CE99d8d7a6271CA66AD3915AED28476');
+            var contractInstance = contract.at('0x26B7FD747CE99d8d7a6271CA66AD3915AED28476')
+            contractInstance.gasPrice = 21000;
+            var equipmentid = document.getElementById('productid').innerHTML
+            var startdate = document.getElementById('startdate').value
+            var enddate = document.getElementById('enddate').value
+            var windspeed = document.getElementById('windspeed').value
 
-    contract.methods.equipmentAvailableDuringPeriod('1', '80', '90').call()
+            contractInstance.equipmentAvailableDuringPeriod(equipmentid, startdate, enddate, e => console.log(e));
+            contractInstance.registerRentalContract(equipmentid, 1, startdate, enddate, windspeed, 0.2, e =>
+                console.log(e)
+            )
+        } catch (error) {
+            // User denied account access...
+            console.log(error)
+        }
+    }
+};
 
-
-}
