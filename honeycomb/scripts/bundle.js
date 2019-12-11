@@ -393,13 +393,13 @@ availableButton.onclick = async () => {
             document.getElementById('WindspeedGroup').innerText = 'Min windspeed: ' + windspeed
             document.getElementById('serviceFeeGroup').innerText = 'Servicefee: ' + serviceFee
             let amount = 211111111111111
-            let gasValue = 210000
+            let gasValue = 500000
 
             registerButton.onclick = function () {
                 contractInstance.registerRentalContract(equipmentid, rentalId, date.toString(), windspeed, location.toString(), serviceFee, '0xdB824df2788FF1Cb086773a94708e690EA555b91',
                     {from: window.web3.currentProvider.selectedAddress, value: amount, gas: gasValue, gasPrice: 10000}, (err, call) => {
                         console.log(err, call)
-                    })
+                    }).then(contractInstance.requestSettlement(equipmentid, rentalId))
             }
 
 
