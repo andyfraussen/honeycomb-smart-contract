@@ -45,8 +45,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
 
     //event definitions
     event RequestWWODataFulfilled(bytes32 indexed requestId,uint256 indexed avgWindSpeedKmph);
-    event AllWeatherRetrievedEvent(uint256 _equipmentId,uint256 _rentalId, string _date);
-    event RequestingSettlement(uint256 rentalId,uint256 equipmentId,uint256 avgWindSpeedKmph);
     
     /**
     ** Registers a new campaign
@@ -115,6 +113,7 @@ contract SunnyRental is ChainlinkClient, Ownable {
         RentalContract memory r = getRentalContract(_equipmentId,_rentalId);
         require(r.customer != 0, "rental contract not found");
         
+        
         //no need to pay twice
         if (r.payoutDone){
             return;
@@ -124,8 +123,13 @@ contract SunnyRental is ChainlinkClient, Ownable {
         if(!windspeedWasRetrieved(r.date,r.location)){
             requestWindSpeedFromOracle(r.rentalId,r.date,r.location);
         }else{
-            emit AllWeatherRetrievedEvent(_equipmentId,_rentalId,r.date);
-            //validatePayoutRequirements(_equipmentId,_rentalId);
+            uint256 speed = windspeedForDay(r.date,r.location);
+            if(speed >= r.requiredWindspeedKmph){
+                r.company.send(r.amount);
+            }else{
+                r.company.send(r.serviceFee);
+                r.customer.send(r.amount-r.serviceFee);
+            }
         }
   }
   
@@ -173,7 +177,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
       
       dailyWindSpeedsForLocation[r.location].push(dws);
       
-      emit RequestingSettlement(rentalId,equipmentId,_avgWindSpeedKmph);
       requestSettlement(equipmentId,rentalId);
   }
   
