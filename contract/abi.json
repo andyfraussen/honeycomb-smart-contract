@@ -1,43 +1,20 @@
 [
 	{
-		"constant": true,
+		"constant": false,
 		"inputs": [
 			{
-				"name": "_equipmentId",
-				"type": "uint256"
+				"name": "_requestId",
+				"type": "bytes32"
 			},
 			{
-				"name": "_startDate",
-				"type": "uint256"
-			},
-			{
-				"name": "_endDate",
+				"name": "_avgWindSpeedKmph",
 				"type": "uint256"
 			}
 		],
-		"name": "equipmentAvailableDuringPeriod",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"name": "fulfillWorldWeatherOnlineRequest",
+		"outputs": [],
 		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getChainlinkToken",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -52,20 +29,24 @@
 				"type": "uint256"
 			},
 			{
-				"name": "_startDate",
+				"name": "_date",
+				"type": "string"
+			},
+			{
+				"name": "_requiredWindspeedKmph",
 				"type": "uint256"
 			},
 			{
-				"name": "_endDate",
+				"name": "_location",
+				"type": "string"
+			},
+			{
+				"name": "_serviceFee",
 				"type": "uint256"
 			},
 			{
-				"name": "_minWindspeedKmph",
-				"type": "uint256"
-			},
-			{
-				"name": "_serviceFeePct",
-				"type": "uint256"
+				"name": "_rentalCompany",
+				"type": "address"
 			}
 		],
 		"name": "registerRentalContract",
@@ -84,30 +65,7 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
-		"inputs": [],
-		"name": "withdrawLink",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
 		"inputs": [
 			{
 				"name": "_equipmentId",
@@ -121,20 +79,6 @@
 		"name": "requestSettlement",
 		"outputs": [],
 		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "equipmentId",
-				"type": "string"
-			}
-		],
-		"name": "requestSettlement",
-		"outputs": [],
-		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -142,15 +86,19 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_requestId",
-				"type": "bytes32"
+				"name": "_rentalId",
+				"type": "uint256"
 			},
 			{
-				"name": "_avgTempF",
-				"type": "int256"
+				"name": "_date",
+				"type": "string"
+			},
+			{
+				"name": "_location",
+				"type": "string"
 			}
 		],
-		"name": "fulfillWorldWeatherOnlineRequest",
+		"name": "requestWindSpeedFromOracle",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -165,6 +113,15 @@
 			}
 		],
 		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withdrawLink",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -186,11 +143,55 @@
 			},
 			{
 				"indexed": true,
-				"name": "data",
-				"type": "int256"
+				"name": "avgWindSpeedKmph",
+				"type": "uint256"
 			}
 		],
 		"name": "RequestWWODataFulfilled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_rentalId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_date",
+				"type": "string"
+			}
+		],
+		"name": "AllWeatherRetrievedEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "rentalId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "equipmentId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "avgWindSpeedKmph",
+				"type": "uint256"
+			}
+		],
+		"name": "RequestingSettlement",
 		"type": "event"
 	},
 	{
@@ -257,5 +258,116 @@
 		],
 		"name": "ChainlinkCancelled",
 		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_equipmentId",
+				"type": "uint256"
+			},
+			{
+				"name": "_date",
+				"type": "string"
+			}
+		],
+		"name": "equipmentAvailable",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getChainlinkToken",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getRetrievedSpeed",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_date",
+				"type": "string"
+			},
+			{
+				"name": "_location",
+				"type": "string"
+			}
+		],
+		"name": "windspeedForDay",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_date",
+				"type": "string"
+			},
+			{
+				"name": "_location",
+				"type": "string"
+			}
+		],
+		"name": "windspeedWasRetrieved",
+		"outputs": [
+			{
+				"name": "retrieved",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]

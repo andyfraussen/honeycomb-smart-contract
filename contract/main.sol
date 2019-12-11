@@ -6,8 +6,6 @@ import "https://github.com/smartcontractkit/chainlink/evm/contracts/vendor/Ownab
 
 contract SunnyRental is ChainlinkClient, Ownable {
     
-    uint256 retrievedSpeed;
-    
     uint256 constant private ORACLE_PAYMENT = 1*LINK/10;
     address constant private honeycombWWOOracle = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
     string constant private honeycombWWOPastWeatherUInt256JobId = "58140c87248b4990809e3087f0774a0b";
@@ -50,9 +48,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
     event AllWeatherRetrievedEvent(uint256 _equipmentId,uint256 _rentalId, string _date);
     event RequestingSettlement(uint256 rentalId,uint256 equipmentId,uint256 avgWindSpeedKmph);
     
-    function getRetrievedSpeed() public view returns (uint256){
-        return retrievedSpeed;
-    }
     /**
     ** Registers a new campaign
     **
@@ -132,24 +127,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
             emit AllWeatherRetrievedEvent(_equipmentId,_rentalId,r.date);
             //validatePayoutRequirements(_equipmentId,_rentalId);
         }
-        
-        // WE FIRST WORKED WITH INTEGER EPOCH TIMESTAMPS, TO HAVE MULTI-DAY RENTAL PERIODS. HOWEVER WE LOST 1 WEEK OF TIMESTAMPS
-        // WITH EPOCH INT CONVERSION INTO STRING TIMESTAMP FOR THE WWO API WHICH TAKES ONLY STRINGS. LAST RESORT UNDO ALL THE WORKED
-        // AND GO BACK TO THE BASICS WITH SINGLE DAY RENTALS.
-        
-        // bool allWeatherRetrieved = true;
-        // for(uint256 ts = r.startDate;ts < r.endDate;ts +=dayInSeconds){
-        //     string memory dayString = timestampToDateString(ts);
-        //     if(!weatherWasRetrieved(dayString,_rentalId)){
-        //         allWeatherRetrieved = false;
-        //         break;
-        //     }
-        // }
-        // //if we did not have to retrieve new weather data, we can continue with settlement.
-        // if(allWeatherRetrieved){
-        //     emit AllWeatherRetrievedEvent(_equipmentId,_rentalId);
-        //     validatePayoutRequirements(_equipmentId,_rentalId);
-        // }
   }
   
   function getRentalContract(uint256 _equipmentId,uint256 _rentalId) private view returns (RentalContract){
@@ -161,7 +138,6 @@ contract SunnyRental is ChainlinkClient, Ownable {
         }
         return;
   }
-
 
 
 /**
@@ -184,10 +160,19 @@ contract SunnyRental is ChainlinkClient, Ownable {
  **/
  
   function fulfillWorldWeatherOnlineRequest(bytes32 _requestId, uint256 _avgWindSpeedKmph) public recordChainlinkFulfillment(_requestId){
-      retrievedSpeed = _avgWindSpeedKmph;
-      emit RequestWWODataFulfilled(_requestId, _avgWindSpeedKmph);
       uint256 rentalId = chainlinkRequests[_requestId];
       uint256 equipmentId = equipmentForRentalId[rentalId];
+      
+      RentalContract memory r = getRentalContract(equipmentId,rentalId);
+      
+      DailyWindSpeed memory dws;
+      
+      dws.location = r.location;
+      dws.date = r.date;
+      dws.speed = _avgWindSpeedKmph;
+      
+      dailyWindSpeedsForLocation[r.location].push(dws);
+      
       emit RequestingSettlement(rentalId,equipmentId,_avgWindSpeedKmph);
       requestSettlement(equipmentId,rentalId);
   }
