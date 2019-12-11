@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "dependencies": {
+    "uniq": "^1.0.1"
+  },
+  "scripts": {},
+  "devDependencies": {}
+}
