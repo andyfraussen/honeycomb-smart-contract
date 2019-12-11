@@ -393,7 +393,7 @@ availableButton.onclick = async () => {
             document.getElementById('WindspeedGroup').innerText = 'Min windspeed: ' + windspeed
             document.getElementById('serviceFeeGroup').innerText = 'Servicefee: ' + serviceFee
             let amount = 2111111111111
-            let gasValue = 21111111
+            let gasValue = 21000
 
             registerButton.onclick = function () {
                 contractInstance.registerRentalContract(equipmentid, rentalId, date.toString(), windspeed, location.toString(), serviceFee, '0xdB824df2788FF1Cb086773a94708e690EA555b91',
