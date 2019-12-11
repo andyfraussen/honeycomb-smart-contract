@@ -17,20 +17,23 @@
 <body>
 <div id="fullPage">
 
-    <div class="section homeSecion">
+    <div class="section homeSection">
         <div class="container">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-12 text-center">
                     <h1>easyRent</h1>
                 </div>
             </div>
+        </div>
 
-                <div class="row">
-                    <div class="col-sm-4 offset-sm-2"><h2>Need to have a surfboard for the summer?</h2></div>
-                    <div class="col-sm-4"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum iure minima
-                        nulla odio vel. Animi enim exercitationem ipsa mollitia nobis nostrum repudiandae tempore,
-                        voluptate. Autem nihil quae repudiandae similique soluta.</p></div>
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-4 offset-sm-2">
+                    <span id="typed" style="background: none!important; font-size: 4rem"></span>
                 </div>
+                <div class="col-sm-4"><p>With easyRent you can rent equipement for your next summer vacation without any hassle.</p></div>
+            </div>
 
         </div>
     </div>
@@ -39,14 +42,14 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-6">
-                    <h1>Configure Rental!</h1>
+                    <h1>Configure Rental</h1>
                 </div>
             </div>
             <div class="row align-items-center">
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <p>Enter</p>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <form action="#">
                         <div class="form-group">
                             <label>Equiment</label>
@@ -74,7 +77,7 @@
                         </div>
                         <div class="form-group">
                             <label>Date select</label>
-                                <input class="form-control"  id="rentalDate" type="date" id="start">
+                            <input class="form-control" id="rentalDate" type="date" id="start">
                         </div>
                         <button type="submit" id='availableButton' class="btn btn-primary">Submit</button>
                     </form>
@@ -91,10 +94,10 @@
                 </div>
             </div>
             <div class="row align-items-center">
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <p>Please check the details of the contract before agreeing!</p>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-light" id="dateGroup"></li>
                         <li class="list-group-item list-group-item-light" id="equipmentIdGroup"></li>
@@ -111,7 +114,6 @@
     </div>
 
 
-
 </div>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -124,6 +126,7 @@
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.js"
         integrity="sha256-caNcSA0LvOCX90PTuEbwl+V09xPMca13CJUasl+VCtk=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
 
 <script src="scripts/bundle.js"></script>
 <script>
@@ -135,6 +138,16 @@
         showActiveTooltip: true,
     })
 
+</script>
+
+<script>
+    var typed = new Typed('#typed', {
+        strings: [ 'CARELESS', 'EASY', 'SMART'],
+        typeSpeed: 100,
+        backSpeed: 0,
+        backDelay: 1000,
+        loop: true
+    });
 </script>
 </body>
 </html>

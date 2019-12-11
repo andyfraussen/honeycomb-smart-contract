@@ -7,3 +7,9 @@ span{
 }
 
 
+.container{
+  background: #232c44;
+  border: 1px solid #323b51;
+  padding: 5rem;
+  margin-bottom: 5rem;
+}
