@@ -1,4 +1,4 @@
-# honeycomb-smart-contract
+# easyRent - honeycomb smart contract hackathon
 ## Concept
 In current markets it is hard to commit to certain transactions if the outcome of the transaction could potentially be unsatisfactory due to weather conditions. Imagine placing a rental order for construction machinery (i.e. an excavator) but the week of your rental, it keeps pouring, preventing you from performing any work. Similarly, imagine preordering a ski pass a few months upfront for a discounted price, and ending up without any snowfall. Booking a surf camp, but ending up without any wind. Renting a pop-up location at the beach? Better have some sunny days to get some sales. The list keeps going on.
 
@@ -10,4 +10,3 @@ Consumers will love this approach as they know they'll be able to step in a pay-
 Merchants will love this approach, as they will be able to convince more customers to engage in a rental contract without the risk of wasting their money. For the merchants, chances are low they would be able to rent the equipment to anyone else in case of bad weather (hard for anyone to surf without any wind), so there is no opportunity cost for the merchant when the cunsomer only has to pay the small administrative fee. They don't miss out on a full-payment from another renter, as chances are low there'd be any interest with the bad weather conditions. They only stand to gain when users feel more engaged to commit on a rental agreement way upfront, having to pay only a fraction of the full fee when the weather conditions are bad. This way the rental company has a stable forecasting of their minimum income, and customers are willing to commit way more upfront since they have a guarantee on not wasting their money should weather conditions turn out bad.
 
 ## Demo
-https://youtu.be/_J7YKzaYEf8
