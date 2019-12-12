@@ -2,6 +2,7 @@ let abi = require('./abi.json');
 
 let availableButton = document.getElementById('availableButton')
 let registerButton = document.getElementById('registerButton')
+let confirmButton = document.getElementById('confirmButton')
 
 availableButton.onclick = async () => {
     if (window.ethereum) {
@@ -24,7 +25,7 @@ availableButton.onclick = async () => {
                     alert('Date is still available! Continue to the last step to register the rental')
                 }
             })
-            document.getElementById('equipmentIdGroup').innerText = 'Equipment: ' + equipmentIdGroup
+            document.getElementById('equipmentIdGroup').innerText = 'Equipment: ' + equipmentIdGroup + ' ID: '+equipmentid
             document.getElementById('dateGroup').innerText = 'Date: ' + date
             document.getElementById('rentalIdGroup').innerText = 'RentalID: ' + rentalId
             document.getElementById('LocationGroup').innerText = 'Location: ' + location
@@ -37,9 +38,16 @@ availableButton.onclick = async () => {
                 contractInstance.registerRentalContract(equipmentid, rentalId, date.toString(), windspeed, location.toString(), serviceFee, '0xdB824df2788FF1Cb086773a94708e690EA555b91',
                     {from: window.web3.currentProvider.selectedAddress, value: amount, gas: gasValue, gasPrice: 10000}, (err, call) => {
                         console.log(err, call)
-                    }).then(contractInstance.requestSettlement(equipmentid, rentalId))
+                    })
             }
 
+            confirmButton.onclick = function(){
+                let equipmentConfirm = document.getElementById('confirmEquipment').value
+                let rentalConfirm = document.getElementById('confirmRental').value
+                console.log(rentalConfirm)
+                contractInstance.requestSettlement(equipmentConfirm, rentalConfirm, (err, call) => {
+                    console.log(err, call)})
+            }
 
         } catch (error) {
             // User denied account access...
