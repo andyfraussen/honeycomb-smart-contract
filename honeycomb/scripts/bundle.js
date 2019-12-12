@@ -397,7 +397,7 @@ availableButton.onclick = async () => {
             let gasValue = 500000
 
             registerButton.onclick = function () {
-                contractInstance.registerRentalContract(equipmentid, rentalId, date.toString(), windspeed, location.toString(), serviceFee, '0xdB824df2788FF1Cb086773a94708e690EA555b91',
+                contractInstance.registerRentalContract(equipmentid, rentalId, date.toString(), windspeed, location, serviceFee, '0xdB824df2788FF1Cb086773a94708e690EA555b91',
                     {from: window.web3.currentProvider.selectedAddress, value: amount, gas: gasValue, gasPrice: 10000}, (err, call) => {
                         console.log(err, call)
                     })
@@ -406,7 +406,7 @@ availableButton.onclick = async () => {
             confirmButton.onclick = function(){
                 let equipmentConfirm = document.getElementById('confirmEquipment').value
                 let rentalConfirm = document.getElementById('confirmRental').value
-                console.log(rentalConfirm)
+
                 contractInstance.requestSettlement(equipmentConfirm, rentalConfirm, (err, call) => {
                     console.log(err, call)})
             }
