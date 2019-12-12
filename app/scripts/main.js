@@ -22,7 +22,9 @@ availableButton.onclick = async () => {
 
             contractInstance.equipmentAvailable(equipmentid, date.toString(), (e, f) => {
                 if (f === true) {
-                    alert('Date is still available! Continue to the last step to register the rental')
+                    alert('Date is still available! Continue to the next step to register the rental')
+                } else {
+                    alert('Sorry, this date is unavaible, please try to look for another one.')
                 }
             })
             document.getElementById('equipmentIdGroup').innerText = 'Equipment ID: '+equipmentid
