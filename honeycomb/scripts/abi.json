@@ -1,0 +1,359 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_requestId",
+        "type": "bytes32"
+      },
+      {
+        "name": "_avgWindSpeedKmph",
+        "type": "uint256"
+      }
+    ],
+    "name": "fulfillWorldWeatherOnlineRequest",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_equipmentId",
+        "type": "uint256"
+      },
+      {
+        "name": "_rentalId",
+        "type": "uint256"
+      },
+      {
+        "name": "_date",
+        "type": "string"
+      },
+      {
+        "name": "_requiredWindspeedKmph",
+        "type": "uint256"
+      },
+      {
+        "name": "_location",
+        "type": "string"
+      },
+      {
+        "name": "_serviceFee",
+        "type": "uint256"
+      },
+      {
+        "name": "_rentalCompany",
+        "type": "address"
+      }
+    ],
+    "name": "registerRentalContract",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_equipmentId",
+        "type": "uint256"
+      },
+      {
+        "name": "_rentalId",
+        "type": "uint256"
+      }
+    ],
+    "name": "requestSettlement",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_rentalId",
+        "type": "uint256"
+      },
+      {
+        "name": "_date",
+        "type": "string"
+      },
+      {
+        "name": "_location",
+        "type": "string"
+      }
+    ],
+    "name": "requestWindSpeedFromOracle",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "withdrawLink",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "requestId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "name": "avgWindSpeedKmph",
+        "type": "uint256"
+      }
+    ],
+    "name": "RequestWWODataFulfilled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "_equipmentId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "_rentalId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "_date",
+        "type": "string"
+      }
+    ],
+    "name": "AllWeatherRetrievedEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "rentalId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "equipmentId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "avgWindSpeedKmph",
+        "type": "uint256"
+      }
+    ],
+    "name": "RequestingSettlement",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "previousOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipRenounced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ChainlinkRequested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ChainlinkFulfilled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ChainlinkCancelled",
+    "type": "event"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_equipmentId",
+        "type": "uint256"
+      },
+      {
+        "name": "_date",
+        "type": "string"
+      }
+    ],
+    "name": "equipmentAvailable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getChainlinkToken",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_date",
+        "type": "string"
+      },
+      {
+        "name": "_location",
+        "type": "string"
+      }
+    ],
+    "name": "windspeedForDay",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_date",
+        "type": "string"
+      },
+      {
+        "name": "_location",
+        "type": "string"
+      }
+    ],
+    "name": "windspeedWasRetrieved",
+    "outputs": [
+      {
+        "name": "retrieved",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

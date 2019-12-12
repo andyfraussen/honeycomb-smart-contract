@@ -1,0 +1,19 @@
+body{
+  background: #20283c;
+  color: #bdc3d3;
+}
+span{
+  background: #bdc3d3!important;
+}
+
+
+.container{
+  background: #232c44;
+  border: 1px solid #323b51;
+  padding: 5rem;
+  margin-bottom: 5rem;
+}
+
+.list-group{
+  color: black;
+}

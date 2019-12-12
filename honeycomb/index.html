@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>easyRent</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.css"
+          integrity="sha256-+dIh4jG2jQTHZwW81yUo8h6tzXWcNumyNL5XPZbwp1E=" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="css/main.css">
+
+</head>
+<body>
+<div id="fullPage">
+
+    <div class="section homeSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <h1>easyRent</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <span id="typed" style="background: none!important; font-size: 4rem"></span>
+                </div>
+                <div class="col-sm-8"><p>With easyRent, you can rent equipment for your next summer vacation without any hassle. When we rent our equipment, we register the rental in a smart contract so we can automate the execution of our contract. Because of this, cancelling the contract because of bad weather or any other condition can be transparent, easy and smart. </p></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section checkSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1>Configure Rental</h1>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-sm-6" style="padding: 5rem;">
+                    <p>Please choose between any of these options and check if the product is still available to rent.</p>
+                </div>
+                <div class="col-sm-6">
+                    <form action="#">
+                        <div class="form-group">
+                            <label>Equiment</label>
+                            <select class="form-control" id="equipmentId">
+                                <option value="1">Long surfboard</option>
+                                <option value="2">Short surfboard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <select class="form-control" id="locationSelect">
+                                <option>Hawaii</option>
+                                <option>Calais</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum windspeed</label>
+                            <input class="form-control" type="number" id="windspeedSelect">
+                        </div>
+                        <div class="form-group">
+                            <label>Date select</label>
+                            <input class="form-control" id="rentalDate" type="date" id="start">
+                        </div>
+                        <button type="submit" id='availableButton' class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section registerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1>Register Rental</h1>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-sm-6" style="padding: 5rem;">
+                    <p>Please check the details of the contract before agreeing.</p>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-light" id="dateGroup"></li>
+                        <li class="list-group-item list-group-item-light" id="equipmentIdGroup"></li>
+                        <li class="list-group-item list-group-item-light" id="LocationGroup"></li>
+                        <li class="list-group-item list-group-item-light" id="WindspeedGroup"></li>
+                        <li class="list-group-item list-group-item-light" id="rentalIdGroup"></li>
+                        <li class="list-group-item list-group-item-light" id="serviceFeeGroup"></li>
+
+                    </ul>
+                    <input type="button" class="btn btn-primary" value="Register" id="registerButton">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section confirmSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1>Request settlement</h1>
+                </div>
+            </div>
+
+            <div class="row-align-items-center">
+                <div class="col-sm-6" style="padding: 5rem;">
+                    <p>Chainlink request.</p>
+                </div>
+                <div class="col-sm-6">
+                    <input type="text" id="confirmEquipment" placeholder="Equipment ID">
+                    <input type="text" id="confirmRental" placeholder="Rental ID">
+
+                    <input type="button" class="btn btn-primary" value="confirm" id="confirmButton">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.js"
+        integrity="sha256-caNcSA0LvOCX90PTuEbwl+V09xPMca13CJUasl+VCtk=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+
+<script src="scripts/bundle.js"></script>
+<script>
+    new fullpage('#fullPage', {
+        navigation: true,
+        autoScrolling: true,
+        scrollHorizontally: true,
+        navigationTooltips: ['Home', 'Configuration', 'Reservation', 'Confirmation'],
+        showActiveTooltip: true,
+    })
+
+</script>
+
+<script>
+    var typed = new Typed('#typed', {
+        strings: [ 'CARELESS', 'EASY', 'SMART'],
+        typeSpeed: 100,
+        backSpeed: 0,
+        backDelay: 1000,
+        loop: true
+    });
+</script>
+</body>
+</html>
