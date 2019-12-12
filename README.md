@@ -12,4 +12,4 @@ Merchants will love this approach, as they will be able to convince more custome
 ## Demo
 website: https://www.fraussen.dev/
 
-youtube: 
+youtube: https://youtu.be/QUrp1fynJ_Y
