@@ -374,11 +374,11 @@ availableButton.onclick = async () => {
             let contract = web3.eth.contract(abi);
             let contractInstance = contract.at('0x40D8d66A03c1c2949837FffC241CE078AD0B15FA')
 
-            let equipmentid = Math.floor(Math.random() * 101);
-            let rentalId = Math.floor(Math.random() * 101);
+            let equipmentid = parseInt(Math.floor(Math.random() * 101));
+            let rentalId = parseInt(Math.floor(Math.random() * 101));
             let equipmentIdGroup = document.getElementById('equipmentId').value
             let date = document.getElementById('rentalDate').value
-            let windspeed = document.getElementById('windspeedSelect').value
+            let windspeed = parseInt(document.getElementById('windspeedSelect').value)
             let location = document.getElementById('locationSelect').value
             let serviceFee = 10000
 
@@ -404,8 +404,8 @@ availableButton.onclick = async () => {
             }
 
             confirmButton.onclick = function(){
-                let equipmentConfirm = document.getElementById('confirmEquipment').value
-                let rentalConfirm = document.getElementById('confirmRental').value
+                let equipmentConfirm = parseInt(document.getElementById('confirmEquipment').value)
+                let rentalConfirm = parseInt(document.getElementById('confirmRental').value)
 
                 contractInstance.requestSettlement(equipmentConfirm, rentalConfirm, (err, call) => {
                     console.log(err, call)})
